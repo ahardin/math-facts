@@ -8,6 +8,9 @@ import 'package:flutter_circle/equation.dart';
 import 'package:flutter_circle/game_model.dart';
 import 'package:provider/provider.dart';
 
+import 'score.dart';
+import 'status_message.dart';
+
 class GamePage extends StatefulWidget {
   const GamePage({super.key, required this.title});
 
@@ -18,42 +21,38 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  late List<Circle> circleWidgets;
-  Queue<String> queue = Queue();
-  String equation = '';
-  int score = 0;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(
-            255, 247, 115, 0), //Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: ChangeNotifierProvider(
-        create: (context) => GameModel(),
-        child: const Column(
-          children: [
-            Equation(),
-            StatusMessage(),
-            Expanded(child: CirclesCircle()),
-          ],
-        ),
-      ),
+    return ChangeNotifierProvider(
+      create: (context) => GameModel(),
+      child: Builder(builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color.fromARGB(255, 247, 115,
+                0), //Theme.of(context).colorScheme.inversePrimary,
+            title: Text(widget.title),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () {
+                  context.read<GameModel>().reset();
+                },
+              ),
+            ],
+          ),
+          body: const Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Score(),
+              ),
+              Equation(),
+              StatusMessage(),
+              Expanded(child: CirclesCircle()),
+            ],
+          ),
+        );
+      }),
     );
-  }
-}
-
-class StatusMessage extends StatelessWidget {
-  const StatusMessage({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    var game = context.watch<GameModel>();
-    return Text(
-        game.status == QuestionStatus.incorrect ? 'Nope, try again.' : '');
   }
 }

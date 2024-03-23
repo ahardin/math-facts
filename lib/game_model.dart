@@ -8,6 +8,7 @@ class GameModel extends ChangeNotifier {
   String equation = '';
   Queue<String> queue = Queue();
   QuestionStatus status = QuestionStatus.unanswered;
+  int score = 0;
 
   GameModel() {
     circleItems = generateNewProblems();
@@ -35,6 +36,47 @@ class GameModel extends ChangeNotifier {
 
     if (allCorrect) {
       circleItems = generateNewProblems();
+    } else {
+      // see if any combination of the remaining "normal" circles can be a valid equation
+
+      var isEquationRemaining = false;
+
+      var remainingNumbers = circleItems
+          .where((element) =>
+              isNumeric(element.text) && element.state != CircleState.correct)
+          .map((e) => int.parse(e.text))
+          .toList();
+
+      var remainingOperators = circleItems
+          .where((element) =>
+              element.text == 'X' && element.state != CircleState.correct)
+          .map((e) => e.text)
+          .toList();
+
+      for (var i = 0; i < remainingNumbers.length; i++) {
+        for (var j = 0; j < remainingNumbers.length; j++) {
+          if (j == i) continue;
+
+          for (var k = 0; k < remainingNumbers.length; k++) {
+            if (k == i || k == j) continue;
+
+            for (var operator in remainingOperators) {
+              var realAnswer = remainingNumbers[i] * remainingNumbers[j];
+              var possibleAnswer = remainingNumbers[k];
+
+              if (realAnswer == possibleAnswer) {
+                isEquationRemaining = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (!isEquationRemaining) {
+        circleItems = generateNewProblems();
+        queue.clear();
+      }
     }
 
     notifyListeners();
@@ -52,6 +94,7 @@ class GameModel extends ChangeNotifier {
 
       if (queue.elementAt(1) == 'X' && num1 * num2 == product) {
         status = QuestionStatus.correct;
+        score++;
 
         for (var circle in circleItems) {
           if (circle.text == '=') {
@@ -167,6 +210,14 @@ class GameModel extends ChangeNotifier {
     }
     problems.shuffle();
     return problems;
+  }
+
+  void reset() {
+    score = 0;
+    queue.clear();
+    equation = '';
+    circleItems = generateNewProblems();
+    notifyListeners();
   }
 }
 
