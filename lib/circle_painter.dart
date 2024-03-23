@@ -20,7 +20,7 @@ class CirclePainter extends CustomPainter {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.black,
           fontSize: 32,
         ),

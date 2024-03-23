@@ -1,30 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_circle/game_model.dart';
 
 import 'circle_painter.dart';
 
-typedef CircleCallback = bool Function(Circle circle, bool currentlySelected);
+typedef CircleCallback = void Function(CircleItem item);
 
-class Circle extends StatefulWidget {
-  final CircleCallback? callback;
-  final double x;
-  final double y;
-  String text = '';
-  Color color;
+class Circle extends StatelessWidget {
+  final CircleItem item;
+  final CircleCallback callback;
 
-  Circle(
-      {super.key,
-      required this.x,
-      required this.y,
-      this.text = '',
-      this.color = Colors.black54,
-      this.callback});
-
-  @override
-  State<Circle> createState() => _CircleState();
-}
-
-class _CircleState extends State<Circle> {
-  bool selected = false;
+  const Circle({super.key, required this.item, required this.callback});
 
   @override
   Widget build(BuildContext context) {
@@ -43,18 +28,14 @@ class _CircleState extends State<Circle> {
           ]),
       child: GestureDetector(
         onTap: () {
-          if (widget.callback != null) {
-            if (widget.callback!(widget, selected)) {
-              setState(() {
-                selected = !selected;
-              });
-            }
-          }
+          callback(item);
         },
         child: CustomPaint(
           size: const Size(radius * 2, radius * 2),
           painter: CirclePainter(
-              color: selected ? Colors.red : widget.color, text: widget.text),
+              color:
+                  item.state == CircleState.selected ? Colors.red : item.color,
+              text: item.text),
         ),
       ),
     );
