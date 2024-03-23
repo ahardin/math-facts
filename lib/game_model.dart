@@ -7,6 +7,7 @@ class GameModel extends ChangeNotifier {
   List<CircleItem> circleItems = [];
   String equation = '';
   Queue<String> queue = Queue();
+  QuestionStatus status = QuestionStatus.unanswered;
 
   GameModel() {
     circleItems = generateNewProblems();
@@ -27,12 +28,53 @@ class GameModel extends ChangeNotifier {
     }
 
     updateEquation();
+    checkEquation();
+
+    var allCorrect = circleItems.every((element) =>
+        element.text == '=' || element.state == CircleState.correct);
+
+    if (allCorrect) {
+      circleItems = generateNewProblems();
+    }
 
     notifyListeners();
   }
 
   void updateEquation() {
     equation = queue.map((e) => e.toLowerCase()).join(' ');
+  }
+
+  void checkEquation() {
+    if (queue.length == 5) {
+      var num1 = int.parse(queue.elementAt(0));
+      var num2 = int.parse(queue.elementAt(2));
+      var product = int.parse(queue.elementAt(4));
+
+      if (queue.elementAt(1) == 'X' && num1 * num2 == product) {
+        status = QuestionStatus.correct;
+
+        for (var circle in circleItems) {
+          if (circle.text == '=') {
+            circle.state = CircleState.normal;
+          } else if (circle.state == CircleState.selected) {
+            circle.state = CircleState.correct;
+          }
+        }
+
+        queue.clear();
+      } else {
+        status = QuestionStatus.incorrect;
+        queue.clear();
+
+        for (var circle in circleItems) {
+          if (circle.state == CircleState.selected) {
+            circle.state = CircleState.normal;
+          }
+        }
+      }
+    } else {
+      status = QuestionStatus.unanswered;
+    }
   }
 
   bool isNumeric(String text) {
@@ -61,20 +103,6 @@ class GameModel extends ChangeNotifier {
     }
 
     return false;
-  }
-
-  void addOperand(String operand) {
-    queue.add(operand);
-
-    if (queue.length == 5) {
-      var num1 = int.parse(queue.elementAt(0));
-      var num2 = int.parse(queue.elementAt(2));
-      var product = int.parse(queue.elementAt(4));
-
-      if (queue.elementAt(1) == 'X' && num1 * num2 == product) {
-        queue.clear();
-      }
-    }
   }
 
   CircleItem createCircle(
@@ -169,4 +197,10 @@ enum CircleState {
   normal,
   selected,
   correct,
+}
+
+enum QuestionStatus {
+  correct,
+  incorrect,
+  unanswered,
 }

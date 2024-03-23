@@ -11,13 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Math Master',
+      title: 'My Math Facts',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 247, 115, 0)),
         useMaterial3: true,
       ),
-      home: const GamePage(title: 'Math Master'),
+      home: const GamePage(title: 'My Math Facts'),
     );
   }
 }

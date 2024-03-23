@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_circle/game_model.dart';
+import 'package:provider/provider.dart';
 
 import 'circle_painter.dart';
 
@@ -14,6 +15,7 @@ class Circle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double radius = 40;
+
     return Container(
       decoration: BoxDecoration(
           color: Colors.white,
@@ -30,12 +32,18 @@ class Circle extends StatelessWidget {
         onTap: () {
           callback(item);
         },
-        child: CustomPaint(
-          size: const Size(radius * 2, radius * 2),
-          painter: CirclePainter(
-              color:
-                  item.state == CircleState.selected ? Colors.red : item.color,
-              text: item.text),
+        child: Opacity(
+          opacity: item.state == CircleState.correct ? .6 : 1,
+          child: CustomPaint(
+            size: const Size(radius * 2, radius * 2),
+            painter: CirclePainter(
+                color: item.state == CircleState.selected
+                    ? Colors.blue
+                    : item.state == CircleState.correct
+                        ? Colors.lightGreen
+                        : item.color,
+                text: item.text),
+          ),
         ),
       ),
     );

@@ -27,7 +27,8 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: const Color.fromARGB(
+            255, 247, 115, 0), //Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: ChangeNotifierProvider(
@@ -35,10 +36,24 @@ class _GamePageState extends State<GamePage> {
         child: const Column(
           children: [
             Equation(),
+            StatusMessage(),
             Expanded(child: CirclesCircle()),
           ],
         ),
       ),
     );
+  }
+}
+
+class StatusMessage extends StatelessWidget {
+  const StatusMessage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var game = context.watch<GameModel>();
+    return Text(
+        game.status == QuestionStatus.incorrect ? 'Nope, try again.' : '');
   }
 }
