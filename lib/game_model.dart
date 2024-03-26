@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
@@ -12,10 +13,46 @@ class GameModel extends ChangeNotifier {
 
   GameModel() {
     circleItems = generateNewProblems();
+    startTimer();
     notifyListeners();
   }
 
+  late Timer _timer;
+  int defaultTime = 120;
+  int time = 120;
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (time == 0) {
+          timer.cancel();
+        } else {
+          time--;
+          notifyListeners();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void startNewRound() {
+    _timer.cancel();
+    time = defaultTime;
+    startTimer();
+    circleItems = generateNewProblems();
+  }
+
   void selectCircle(CircleItem circle) {
+    if (time <= 0) return;
+
     if (circle.state == CircleState.normal) {
       if (canSelect(circle)) {
         circle.state = CircleState.selected;
@@ -35,7 +72,7 @@ class GameModel extends ChangeNotifier {
         element.text == '=' || element.state == CircleState.correct);
 
     if (allCorrect) {
-      circleItems = generateNewProblems();
+      startNewRound();
     } else {
       // see if any combination of the remaining "normal" circles can be a valid equation
 
@@ -74,7 +111,7 @@ class GameModel extends ChangeNotifier {
       }
 
       if (!isEquationRemaining) {
-        circleItems = generateNewProblems();
+        startNewRound();
         queue.clear();
       }
     }
@@ -160,7 +197,7 @@ class GameModel extends ChangeNotifier {
 
   List<CircleItem> generateNewProblems() {
     var problems =
-        generateMultiplicationProblems(numberOfProblems: 2, maxMultiplier: 10);
+        generateMultiplicationProblems(numberOfProblems: 2, maxMultiplier: 6);
 
     var circleCount = problems.length * 4;
 
@@ -217,6 +254,9 @@ class GameModel extends ChangeNotifier {
     queue.clear();
     equation = '';
     circleItems = generateNewProblems();
+    _timer.cancel();
+    time = defaultTime;
+    startTimer();
     notifyListeners();
   }
 }

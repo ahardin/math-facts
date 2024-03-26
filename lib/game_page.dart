@@ -8,6 +8,7 @@ import 'package:flutter_circle/equation.dart';
 import 'package:flutter_circle/game_model.dart';
 import 'package:provider/provider.dart';
 
+import 'game_timer.dart';
 import 'score.dart';
 import 'status_message.dart';
 
@@ -44,7 +45,19 @@ class _GamePageState extends State<GamePage> {
             children: [
               Padding(
                 padding: EdgeInsets.only(top: 10),
-                child: Score(),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 36.0),
+                      child: GameTimer(),
+                    ),
+                    Spacer(),
+                    Padding(
+                      padding: EdgeInsets.only(right: 36.0),
+                      child: Score(),
+                    ),
+                  ],
+                ),
               ),
               Equation(),
               StatusMessage(),
